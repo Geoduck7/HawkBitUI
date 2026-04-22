@@ -13,6 +13,20 @@
   <input id="targetId" placeholder="Controller ID" />
   <button onclick="createTarget()">Create</button>
 
+  <h2>Upload Firmware</h2>
+  <input type="file" id="firmwareFile" />
+  <button onclick="uploadFirmware()">Upload</button> 
+
+  <h2>Create Distribution</h2>
+  <input id="moduleId" placeholder="Module ID" />
+  <input id="distName" placeholder="Distribution Name" />
+  <button onclick="createDistribution()">Create</button>
+
+  <h2>Rollout</h2>
+  <input id="targetIdRollout" placeholder="Target ID" />
+  <input id="distributionId" placeholder="Distribution ID" />
+  <button onclick="rollout()">Deploy</button>
+
   <script>
     async function loadTargets() {
       const res = await fetch('/api/targets');
@@ -43,5 +57,50 @@
       loadTargets();
     }
   </script>
+  <script>
+async function uploadFirmware() {
+  const fileInput = document.getElementById("firmwareFile");
+  const formData = new FormData();
+  formData.append("file", fileInput.files[0]);
+
+  await fetch("/api/upload", {
+    method: "POST",
+    body: formData
+  });
+
+  alert("Firmware uploaded");
+}
+
+async function createDistribution() {
+  const moduleId = document.getElementById("moduleId").value;
+  const name = document.getElementById("distName").value;
+
+  await fetch("/api/distribution", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ moduleId, name })
+  });
+
+  alert("Distribution created");
+}
+
+async function rollout() {
+  const targetId = document.getElementById("targetIdRollout").value;
+  const distributionId = document.getElementById("distributionId").value;
+
+  await fetch("/api/rollout", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ targetId, distributionId })
+  });
+
+  alert("Rollout started");
+}
+</script>
+
 </body>
 </html>

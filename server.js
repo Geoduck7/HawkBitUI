@@ -2,6 +2,12 @@ const express = require("express");
 const axios = require("axios");
 const bodyParser = require("body-parser");
 
+const multer = require("multer");
+const FormData = require("form-data");
+const fs = require("fs");
+
+const upload = multer({ dest: "uploads/" });
+
 const app = express();
 app.use(bodyParser.json());
 app.use(express.static("public"));
@@ -41,3 +47,64 @@ app.post("/api/targets", async (req, res) => {
 app.listen(3000, () => {
   console.log("UI running on port 3000");
 });
+
+app.post("/api/upload", upload.single("file"), async (req, res) => {
+  try {
+    const form = new FormData();
+
+    form.append("file", fs.createReadStream(req.file.path));
+    form.append("filename", req.file.originalname);
+
+    const response = await axios.post(
+      `${HAWKBIT_URL}/softwaremodules`,
+      form,
+      {
+        auth: AUTH,
+        headers: form.getHeaders()
+      }
+    );
+
+    res.json(response.data);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
+
+app.post("/api/distribution", async (req, res) => {
+  try {
+    const response = await axios.post(
+      `${HAWKBIT_URL}/distributionsets`,
+      {
+        name: req.body.name,
+        modules: [
+          {
+            id: req.body.moduleId
+          }
+        ]
+      },
+      { auth: AUTH }
+    );
+
+    res.json(response.data);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
+
+app.post("/api/rollout", async (req, res) => {
+  try {
+    const response = await axios.post(
+      `${HAWKBIT_URL}/deployment`,
+      {
+        targetFilterQuery: `controllerId==${req.body.targetId}`,
+        distributionSetId: req.body.distributionId
+      },
+      { auth: AUTH }
+    );
+
+    res.json(response.data);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
+
