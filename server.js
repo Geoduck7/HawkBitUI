@@ -50,13 +50,25 @@ app.listen(3000, () => {
 
 app.post("/api/upload", upload.single("file"), async (req, res) => {
   try {
-    const form = new FormData();
-
-    form.append("file", fs.createReadStream(req.file.path));
-    form.append("filename", req.file.originalname);
-
-    const response = await axios.post(
+    // 1. Create software module
+    const moduleRes = await axios.post(
       `${HAWKBIT_URL}/softwaremodules`,
+      [{
+        name: req.file.originalname,
+        version: "1.0.0",
+        type: "os"
+      }],
+      { auth: AUTH }
+    );
+
+    const moduleId = moduleRes.data[0].id;
+
+    // 2. Upload artifact to module
+    const form = new FormData();
+    form.append("file", fs.createReadStream(req.file.path));
+
+    await axios.post(
+      `${HAWKBIT_URL}/softwaremodules/${moduleId}/artifacts`,
       form,
       {
         auth: AUTH,
@@ -64,9 +76,11 @@ app.post("/api/upload", upload.single("file"), async (req, res) => {
       }
     );
 
-    res.json(response.data);
+    res.json({ success: true, moduleId });
+
   } catch (err) {
-    res.status(500).send(err.message);
+    console.error(err.response?.data || err.message);
+    res.status(500).send(err.response?.data || err.message);
   }
 });
 
