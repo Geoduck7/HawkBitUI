@@ -27,6 +27,7 @@ app.get("/api/targets", async (req, res) => {
     res.json(response.data);
   } catch (err) {
     res.status(500).send(err.message);
+    console.log(err.message);
   }
 });
 
@@ -41,6 +42,7 @@ app.post("/api/targets", async (req, res) => {
     res.json(response.data);
   } catch (err) {
     res.status(500).send(err.message);
+    console.log(err.message);
   }
 });
 
@@ -81,6 +83,7 @@ app.post("/api/upload", upload.single("file"), async (req, res) => {
   } catch (err) {
     console.error(err.response?.data || err.message);
     res.status(500).send(err.response?.data || err.message);
+    console.log(err.message);
   }
 });
 
@@ -102,6 +105,7 @@ app.post("/api/distribution", async (req, res) => {
     res.json(response.data);
   } catch (err) {
     res.status(500).send(err.message);
+    console.log(err.message);
   }
 });
 
@@ -119,6 +123,7 @@ app.post("/api/rollout", async (req, res) => {
     res.json(response.data);
   } catch (err) {
     res.status(500).send(err.message);
+    console.log(err.message);
   }
 });
 
