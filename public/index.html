@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>HawkBit UI</title>
+</head>
+<body>
+  <h1>HawkBit Targets</h1>
+
+  <button onclick="loadTargets()">Load Targets</button>
+  <ul id="targets"></ul>
+
+  <h2>Create Target</h2>
+  <input id="targetId" placeholder="Controller ID" />
+  <button onclick="createTarget()">Create</button>
+
+  <script>
+    async function loadTargets() {
+      const res = await fetch('/api/targets');
+      const data = await res.json();
+
+      const list = document.getElementById('targets');
+      list.innerHTML = '';
+
+      data.content.forEach(t => {
+        const li = document.createElement('li');
+        li.textContent = t.controllerId;
+        list.appendChild(li);
+      });
+    }
+
+    async function createTarget() {
+      const id = document.getElementById('targetId').value;
+
+      await fetch('/api/targets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          controllerId: id,
+          name: id
+        })
+      });
+
+      loadTargets();
+    }
+  </script>
+</body>
+</html>
